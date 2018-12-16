@@ -3,6 +3,7 @@ import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Main {
@@ -106,7 +107,8 @@ public class Main {
         //file.getParentFile().mkdirs();
         file.createNewFile();
 
-        PrintWriter pw = new PrintWriter(file);
+        //PrintWriter pw = new PrintWriter(file);
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8),true);
 
         StringBuilder sb = new StringBuilder();
         sb.append("TweetId");
