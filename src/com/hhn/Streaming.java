@@ -1,4 +1,7 @@
 package com.hhn;
+import javafx.application.Platform;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -22,7 +25,7 @@ public class Streaming {
         this.oAuthAccessTokenSecret = oAuthAccessTokenSecret;
     }
 
-    public void streamAndExport(int maxTweets, String[] searchTerms) {
+    public void streamAndExport(int maxTweets, String[] searchTerms, Controller controller) {
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setOAuthConsumerKey(oAuthConsumerKey)
                 .setOAuthConsumerSecret(oAuthConsumerSecret)
@@ -36,6 +39,8 @@ public class Streaming {
             public void onStatus(Status status) {
                 tweets.add(status);
                 System.out.println("found new status, collected " + tweets.size() + "/" + maxTweets + " tweets");
+
+                controller.updateInformation((double) tweets.size() / maxTweets, status.getText());
                 if(tweets.size() >= maxTweets) {
                     synchronized (lock) {
                         lock.notify();
