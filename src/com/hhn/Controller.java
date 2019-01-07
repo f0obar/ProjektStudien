@@ -28,6 +28,9 @@ public class Controller {
     private CheckBox englishBtn;
 
     @FXML
+    private CheckBox extractHashtagsBtn;
+
+    @FXML
     void start(ActionEvent event) {
         String oAuthConsumerKey = "";
         String oAuthConsumerSecret = "";
@@ -35,21 +38,19 @@ public class Controller {
         String oAuthAccessTokenSecret = "";
 
         try (BufferedReader br = new BufferedReader(new FileReader("credentials.txt"))) {
-            String line;
             oAuthConsumerKey = br.readLine();
             oAuthConsumerSecret = br.readLine();
             oAuthAccessToken = br.readLine();
             oAuthAccessTokenSecret = br.readLine();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         Streaming streaming = new Streaming(oAuthConsumerKey,oAuthConsumerSecret,oAuthAccessToken,oAuthAccessTokenSecret);
         String[] searchTerms = SearchTermField.getText().split(",");
         Boolean english = englishBtn.isSelected();
+        Boolean extractHashtags = extractHashtagsBtn.isSelected();
 
-        new Thread(() -> streaming.streamAndExport((int)TweetCountSlider.getValue(),searchTerms,this, english)).start();
+        new Thread(() -> streaming.streamAndExport((int)TweetCountSlider.getValue(),searchTerms,this, english, extractHashtags)).start();
     }
 
     public void updateInformation(double progressBar, String currentTweet) {

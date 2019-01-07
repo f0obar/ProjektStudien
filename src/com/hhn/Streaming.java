@@ -25,7 +25,7 @@ public class Streaming {
         this.oAuthAccessTokenSecret = oAuthAccessTokenSecret;
     }
 
-    public void streamAndExport(int maxTweets, String[] searchTerms, Controller controller, boolean english) {
+    public void streamAndExport(int maxTweets, String[] searchTerms, Controller controller, boolean english, boolean splitTweets) {
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setOAuthConsumerKey(oAuthConsumerKey)
                 .setOAuthConsumerSecret(oAuthConsumerSecret)
@@ -74,12 +74,11 @@ public class Streaming {
             }
         });
 
-        FilterQuery tweetFilterQuery = new FilterQuery(); // See
-        tweetFilterQuery.track(searchTerms); // OR on keywords
+        FilterQuery tweetFilterQuery = new FilterQuery();
+        tweetFilterQuery.track(searchTerms);
         if(english) {
-            tweetFilterQuery.language(new String[]{"en"});
+            tweetFilterQuery.language("en");
         }
-
         twitterStream.filter(tweetFilterQuery);
 
         try {
@@ -92,11 +91,11 @@ public class Streaming {
         System.out.println("returning statuses");
         twitterStream.shutdown();
         try {
-            exportTweets(tweets);
+            exportTweets(tweets, splitTweets);
         } catch (IOException exception){};
     }
 
-    private void exportTweets(ArrayList<Status> tweets) throws IOException {
+    private void exportTweets(ArrayList<Status> tweets, Boolean extractHashtags) throws IOException {
         System.out.println("Exporting "+ tweets.size() + " tweets.");
         File file = new File("tweets.csv");
         file.createNewFile();
@@ -116,29 +115,56 @@ public class Streaming {
         sb.append("UserFollowers");
         sb.append(",");
         sb.append("GeoLocation");
-        for(Status status : tweets) {
-            sb.append('\n');
-            sb.append(status.getId());
-            sb.append(',');
-            sb.append(status.getText().replace(',',' ').replace('\n',' '));
-            sb.append(',');
-            sb.append(status.getCreatedAt());
-            sb.append(',');
-            sb.append(status.getLang());
-            sb.append(',');
-            sb.append(status.getUser().getName());
-            sb.append(',');
-            sb.append(status.getUser().getFollowersCount());
-            sb.append(",");
-            if(status.getGeoLocation() != null) {
-                sb.append(status.getGeoLocation().getLatitude()+"-"+status.getGeoLocation().getLongitude());
-            } else {
-                sb.append("-");
-            }
 
+        for(Status status : tweets) {
+            if(extractHashtags) {
+                for(String hashtag: extractHashtags(sanitizeTweetText(status.getText()))) {
+                    sb.append(buildRow(status, hashtag));
+                }
+            } else {
+                sb.append(buildRow(status, status.getText()));
+            }
         }
         pw.write(sb.toString());
         pw.close();
         System.out.println("tweets exported.");
+    }
+
+    private String buildRow(Status status, String text) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\n');
+        sb.append(status.getId());
+        sb.append(',');
+        sb.append(sanitizeTweetText(text));
+        sb.append(',');
+        sb.append(status.getCreatedAt());
+        sb.append(',');
+        sb.append(status.getLang());
+        sb.append(',');
+        sb.append(status.getUser().getName());
+        sb.append(',');
+        sb.append(status.getUser().getFollowersCount());
+        sb.append(",");
+        if(status.getGeoLocation() != null) {
+            sb.append(status.getGeoLocation().getLatitude()+"-"+status.getGeoLocation().getLongitude());
+        } else {
+            sb.append("-");
+        }
+        return sb.toString();
+    }
+
+    private ArrayList<String> extractHashtags(String tweetText) {
+        ArrayList<String> hashtags = new ArrayList<>();
+        String[] words = tweetText.split(" ");
+        for(String word: words) {
+            if(word.startsWith("#")) {
+                hashtags.add(word);
+            }
+        }
+        return hashtags;
+    }
+
+    private String sanitizeTweetText(String text) {
+        return text.replace(',',' ').replace('\n',' ');
     }
 }
