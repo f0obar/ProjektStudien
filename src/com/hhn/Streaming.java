@@ -114,6 +114,8 @@ public class Streaming {
         sb.append("UserName");
         sb.append(',');
         sb.append("UserFollowers");
+        sb.append(",");
+        sb.append("GeoLocation");
         for(Status status : tweets) {
             sb.append('\n');
             sb.append(status.getId());
@@ -127,6 +129,13 @@ public class Streaming {
             sb.append(status.getUser().getName());
             sb.append(',');
             sb.append(status.getUser().getFollowersCount());
+            sb.append(",");
+            if(status.getGeoLocation() != null) {
+                sb.append(status.getGeoLocation().getLatitude()+"-"+status.getGeoLocation().getLongitude());
+            } else {
+                sb.append("-");
+            }
+
         }
         pw.write(sb.toString());
         pw.close();
