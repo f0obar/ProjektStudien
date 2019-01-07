@@ -3,10 +3,8 @@ package com.hhn;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -25,6 +23,9 @@ public class Controller {
 
     @FXML
     private TextArea Preview;
+
+    @FXML
+    private CheckBox englishBtn;
 
     @FXML
     void start(ActionEvent event) {
@@ -46,8 +47,9 @@ public class Controller {
         }
         Streaming streaming = new Streaming(oAuthConsumerKey,oAuthConsumerSecret,oAuthAccessToken,oAuthAccessTokenSecret);
         String[] searchTerms = SearchTermField.getText().split(",");
+        Boolean english = englishBtn.isSelected();
 
-        new Thread(() -> streaming.streamAndExport((int)TweetCountSlider.getValue(),searchTerms,this)).start();
+        new Thread(() -> streaming.streamAndExport((int)TweetCountSlider.getValue(),searchTerms,this, english)).start();
     }
 
     public void updateInformation(double progressBar, String currentTweet) {

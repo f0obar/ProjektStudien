@@ -27,6 +27,7 @@
             <TextArea fx:id="Preview" layoutX="32.0" layoutY="145.0" prefHeight="167.0" prefWidth="436.0" />
             <Text layoutX="30.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Preview" />
             <ProgressBar fx:id="Progress" layoutX="32.0" layoutY="319.0" prefHeight="18.0" prefWidth="436.0" progress="0.0" />
+            <CheckBox fx:id="englishBtn" layoutX="28.0" layoutY="95.0" mnemonicParsing="false" text="Only English" />
          </children>
       </AnchorPane>
    </children>

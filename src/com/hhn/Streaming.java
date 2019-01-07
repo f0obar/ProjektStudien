@@ -25,7 +25,7 @@ public class Streaming {
         this.oAuthAccessTokenSecret = oAuthAccessTokenSecret;
     }
 
-    public void streamAndExport(int maxTweets, String[] searchTerms, Controller controller) {
+    public void streamAndExport(int maxTweets, String[] searchTerms, Controller controller, boolean english) {
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
         configurationBuilder.setOAuthConsumerKey(oAuthConsumerKey)
                 .setOAuthConsumerSecret(oAuthConsumerSecret)
@@ -76,7 +76,9 @@ public class Streaming {
 
         FilterQuery tweetFilterQuery = new FilterQuery(); // See
         tweetFilterQuery.track(searchTerms); // OR on keywords
-        tweetFilterQuery.language(new String[]{"en"});
+        if(english) {
+            tweetFilterQuery.language(new String[]{"en"});
+        }
 
         twitterStream.filter(tweetFilterQuery);
 
